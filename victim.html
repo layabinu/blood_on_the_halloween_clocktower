@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#080607">
+    <meta name="description" content="GOOD LUCK">
+    <title>The Victims | Blood on the Halloween Clocktower</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        color-scheme: dark;
+        --ink: #080607;
+        --blood: #ed1833;
+        --paper: #e6d8cf;
+        --muted: #a29591;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        display: grid;
+        min-width: 320px;
+        min-height: 100vh;
+        margin: 0;
+        place-items: center;
+        padding: 2rem 1.25rem;
+        color: var(--paper);
+        background: radial-gradient(ellipse at 50% 39%, rgb(89 12 24 / 22%), transparent 46%), var(--ink);
+        font-family: "IM Fell English", Georgia, serif;
+      }
+
+      .card {
+        width: min(100%, 38rem);
+        padding: clamp(2rem, 7vw, 4.5rem);
+        border: 1px solid #48212a;
+        background: rgb(15 10 12 / 88%);
+        box-shadow: 0 0 70px rgb(133 8 29 / 16%), inset 0 0 50px rgb(80 15 27 / 10%);
+        text-align: center;
+      }
+
+      .eyebrow {
+        margin: 0 0 1rem;
+        color: #c1a8a1;
+        font-size: .75rem;
+        letter-spacing: .3em;
+        text-transform: uppercase;
+      }
+
+      .victim-name {
+        margin: 0;
+        color: var(--blood);
+        font-family: "Creepster", "Impact", fantasy;
+        font-size: clamp(3.2rem, 11vw, 5.6rem);
+        font-weight: 400;
+        line-height: .95;
+        text-shadow: 0 2px 0 #9a081c, 0 5px 24px rgb(235 19 47 / 32%);
+      }
+
+      .intro { margin: 0 auto 1.5rem; color: var(--muted); font-size: 1.15rem; font-style: italic; line-height: 1.7; }
+
+      .rule { margin: 1.5rem 0; color: #9e2533; }
+
+      .action-button {
+        display: inline-block;
+        padding: .85rem 1.4rem;
+        border: 1px solid #f04a59;
+        color: #fff1ed;
+        background: #78091c;
+        cursor: pointer;
+        font: .82rem "IM Fell English", Georgia, serif;
+        letter-spacing: .18em;
+        text-decoration: none;
+        text-transform: uppercase;
+      }
+
+      .action-button:hover { background: #a40c23; }
+      .action-button:focus-visible { outline: 2px solid #ffe4dc; outline-offset: 5px; }
+
+      .reveal-list { display: grid; gap: .8rem; margin: 1.5rem 0; }
+
+      .reveal-list .victim-name { overflow-wrap: anywhere; }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: .7rem;
+        margin: 1.5rem 0;
+      }
+
+      .actions[hidden], .action-button[hidden] { display: none; }
+
+      .status { min-height: 1.4em; color: var(--muted); font-style: italic; }
+
+      .back {
+        display: inline-block;
+        padding: .85rem 1.4rem;
+        border: 1px solid #9f2636;
+        color: #fff1ed;
+        background: #78091c;
+        font-size: .82rem;
+        letter-spacing: .18em;
+        text-decoration: none;
+        text-transform: uppercase;
+      }
+
+      .back:hover { background: #a40c23; }
+      .back:focus-visible { outline: 2px solid #ffe4dc; outline-offset: 5px; }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <p class="eyebrow">*more screaming noises here*</p>
+      <p class="intro">Your fates have been sealed</p>
+      <button class="action-button" id="reveal-button" type="button">Reveal the Victim</button>
+      <p class="rule" aria-hidden="true">✦ &nbsp; ✦ &nbsp; ✦</p>
+      <div class="reveal-list" id="reveal-list" aria-live="polite"></div>
+      <div class="actions" id="actions" hidden>
+        <button class="action-button" id="another-button" type="button">Get another victim</button>
+        <a class="back" href="final_reveal.html">Reveal the killers</a>
+      </div>
+      <p class="status" id="status" role="status"></p>
+      <a class="back" href="names.html">Back to the names</a>
+    </main>
+    <script>
+      const storageKey = "bloodOnTheHalloweenClocktower.names";
+      const revealedStorageKey = "bloodOnTheHalloweenClocktower.revealedVictims";
+      const names = JSON.parse(localStorage.getItem(storageKey) || "[]");
+      const revealButton = document.querySelector("#reveal-button");
+      const anotherButton = document.querySelector("#another-button");
+      const actions = document.querySelector("#actions");
+      const revealList = document.querySelector("#reveal-list");
+      const status = document.querySelector("#status");
+      const revealed = JSON.parse(localStorage.getItem(revealedStorageKey) || "[]");
+
+      function groupVictims() {
+        const groups = new Map();
+        names.forEach((name) => {
+          const key = name.trim().toLowerCase();
+          if (!key) return;
+          const group = groups.get(key);
+          if (group) {
+            group.count += 1;
+          } else {
+            groups.set(key, { key, name: name.trim(), count: 1 });
+          }
+        });
+        return [...groups.values()];
+      }
+
+      function revealNext() {
+        const available = groupVictims().filter((group) => !revealed.includes(group.key));
+        if (available.length === 0) {
+          status.textContent = names.length
+            ? "Every chosen victim has been revealed."
+            : "No victims have been entered yet.";
+          anotherButton.disabled = true;
+          return;
+        }
+
+        const highestCount = Math.max(...available.map((group) => group.count));
+        const tied = available.filter((group) => group.count === highestCount);
+        const selected = tied[Math.floor(Math.random() * tied.length)];
+        revealed.push(selected.key);
+        localStorage.setItem(revealedStorageKey, JSON.stringify(revealed));
+
+        const heading = document.createElement("h1");
+        heading.className = "victim-name";
+        heading.textContent = selected.name;
+        revealList.append(heading);
+        revealButton.hidden = true;
+        actions.hidden = false;
+        anotherButton.disabled = groupVictims().every((group) => revealed.includes(group.key));
+        status.textContent = anotherButton.disabled ? "Every chosen victim has been revealed." : "";
+      }
+
+      revealButton.addEventListener("click", revealNext);
+      anotherButton.addEventListener("click", revealNext);
+
+      if (revealed.length > 0) {
+        const groupsByKey = new Map(groupVictims().map((group) => [group.key, group]));
+        revealed
+          .map((key) => groupsByKey.get(key))
+          .filter(Boolean)
+          .forEach((group) => {
+            const heading = document.createElement("h1");
+            heading.className = "victim-name";
+            heading.textContent = group.name;
+            revealList.append(heading);
+          });
+        revealButton.hidden = true;
+        actions.hidden = false;
+        anotherButton.disabled = groupVictims().every((group) => revealed.includes(group.key));
+        if (anotherButton.disabled) status.textContent = "Every chosen victim has been revealed.";
+      }
+    </script>
+  </body>
+</html>

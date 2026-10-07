@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#080607">
+    <meta name="description" content="Discover who chose each revealed victim.">
+    <title>Reveal the Killers | Blood on the Halloween Clocktower</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        color-scheme: dark;
+        --ink: #080607;
+        --blood: #ed1833;
+        --paper: #e6d8cf;
+        --muted: #a29591;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        min-width: 320px;
+        min-height: 100vh;
+        margin: 0;
+        padding: 3rem 1.25rem;
+        color: var(--paper);
+        background: radial-gradient(ellipse at 50% 20%, rgb(89 12 24 / 22%), transparent 46%), var(--ink);
+        font-family: "IM Fell English", Georgia, serif;
+      }
+
+      .card {
+        width: min(100%, 68rem);
+        margin: 0 auto;
+        padding: clamp(1.5rem, 5vw, 4rem);
+        border: 1px solid #48212a;
+        background: rgb(15 10 12 / 88%);
+        box-shadow: 0 0 70px rgb(133 8 29 / 16%), inset 0 0 50px rgb(80 15 27 / 10%);
+      }
+
+      header { margin-bottom: 2rem; text-align: center; }
+
+      .eyebrow {
+        margin: 0 0 1rem;
+        color: #c1a8a1;
+        font-size: .75rem;
+        letter-spacing: .3em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        color: var(--blood);
+        font-family: "Creepster", "Impact", fantasy;
+        font-size: clamp(3rem, 9vw, 5.4rem);
+        font-weight: 400;
+        line-height: .95;
+        text-shadow: 0 2px 0 #9a081c, 0 5px 24px rgb(235 19 47 / 32%);
+      }
+
+      .rule { margin: 1.5rem 0 0; color: #9e2533; }
+
+      .victim-section {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+        gap: 1.5rem;
+        padding: 1.5rem 0;
+        border-bottom: 1px solid #48212a;
+      }
+
+      .victim-section:first-child { border-top: 1px solid #48212a; }
+
+      .column-label {
+        display: block;
+        margin-bottom: .5rem;
+        color: #c1a8a1;
+        font-size: .72rem;
+        letter-spacing: .16em;
+        text-transform: uppercase;
+      }
+
+      .victim-name {
+        color: var(--blood);
+        font-family: "Creepster", "Impact", fantasy;
+        font-size: clamp(1.7rem, 4vw, 2.6rem);
+        line-height: 1;
+        overflow-wrap: anywhere;
+        text-shadow: 0 2px 0 #9a081c, 0 5px 18px rgb(235 19 47 / 24%);
+      }
+
+      .choosers { margin: 0; color: var(--paper); line-height: 1.7; overflow-wrap: anywhere; }
+      .empty { color: var(--muted); font-style: italic; text-align: center; }
+
+      .back {
+        display: block;
+        width: fit-content;
+        margin: 2rem auto 0;
+        padding: .85rem 1.4rem;
+        border: 1px solid #9f2636;
+        color: #fff1ed;
+        background: #78091c;
+        font-size: .82rem;
+        letter-spacing: .18em;
+        text-decoration: none;
+        text-transform: uppercase;
+      }
+
+      .back:hover { background: #a40c23; }
+      .back:focus-visible { outline: 2px solid #ffe4dc; outline-offset: 5px; }
+
+      @media (max-width: 560px) {
+        .victim-section { grid-template-columns: 1fr; gap: .8rem; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <header>
+        <p class="eyebrow">The truth comes to light</p>
+        <h1>The killers revealed</h1>
+        <p class="rule" aria-hidden="true">✦ &nbsp; ✦ &nbsp; ✦</p>
+      </header>
+      <div id="results" aria-live="polite"></div>
+      <a class="back" href="victim.html">Back to the victims</a>
+    </main>
+    <script>
+      const names = JSON.parse(localStorage.getItem("bloodOnTheHalloweenClocktower.names") || "[]");
+      const choosers = JSON.parse(localStorage.getItem("bloodOnTheHalloweenClocktower.choosers") || "[]");
+      const revealed = JSON.parse(localStorage.getItem("bloodOnTheHalloweenClocktower.revealedVictims") || "[]");
+      const results = document.querySelector("#results");
+
+      function normalize(name) {
+        return name.trim().toLowerCase();
+      }
+
+      const victimGroups = new Map();
+      names.forEach((name, index) => {
+        const key = normalize(name);
+        if (!key) return;
+        const group = victimGroups.get(key) || { name: name.trim(), choosers: new Map() };
+        const chooser = (choosers[index] || "").trim();
+        if (chooser) group.choosers.set(normalize(chooser), chooser);
+        victimGroups.set(key, group);
+      });
+
+      const killed = revealed
+        .map((key) => victimGroups.get(key))
+        .filter(Boolean);
+
+      if (killed.length === 0) {
+        const emptyMessage = document.createElement("p");
+        emptyMessage.className = "empty";
+        emptyMessage.textContent = "No victims have been revealed yet.";
+        results.append(emptyMessage);
+      } else {
+        killed.forEach((victim) => {
+          const section = document.createElement("section");
+          section.className = "victim-section";
+
+          const victimColumn = document.createElement("div");
+          const victimLabel = document.createElement("span");
+          victimLabel.className = "column-label";
+          victimLabel.textContent = "Victim";
+          const victimName = document.createElement("div");
+          victimName.className = "victim-name";
+          victimName.textContent = victim.name;
+          victimColumn.append(victimLabel, victimName);
+
+          const chooserColumn = document.createElement("div");
+          const chooserLabel = document.createElement("span");
+          chooserLabel.className = "column-label";
+          chooserLabel.textContent = "Chosen by";
+          const chooserNames = document.createElement("p");
+          chooserNames.className = "choosers";
+          chooserNames.textContent = [...victim.choosers.values()].join(", ") || "No chooser names were recorded.";
+          chooserColumn.append(chooserLabel, chooserNames);
+          section.append(victimColumn, chooserColumn);
+          results.append(section);
+        });
+      }
+    </script>
+  </body>
+</html>

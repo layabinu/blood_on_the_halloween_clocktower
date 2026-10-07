@@ -1,1 +1,280 @@
-print("hello")
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#080607">
+    <meta name="description" content="A night of secrets, suspicion, and blood. Enter Blood on the Halloween Clocktower.">
+    <title>Blood on the Halloween Clocktower</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        color-scheme: dark;
+        --ink: #080607;
+        --blood: #ed1833;
+        --blood-dark: #8e071a;
+        --paper: #e6d8cf;
+        --muted: #a29591;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        min-width: 320px;
+        min-height: 100vh;
+        margin: 0;
+        overflow: hidden;
+        color: var(--paper);
+        background:
+          radial-gradient(ellipse at 50% 44%, rgb(89 12 24 / 20%), transparent 43%),
+          radial-gradient(ellipse at 50% 100%, #211015 0, var(--ink) 63%);
+        font-family: "IM Fell English", Georgia, serif;
+      }
+
+      body::before {
+        position: fixed;
+        z-index: 1;
+        pointer-events: none;
+        content: "";
+        inset: 0;
+        opacity: .14;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E");
+      }
+
+      .scene {
+        position: relative;
+        display: grid;
+        min-height: 100svh;
+        place-items: center;
+        isolation: isolate;
+        padding: 2rem 1.25rem 8rem;
+      }
+
+      .moon {
+        position: absolute;
+        top: 9%;
+        left: 50%;
+        width: clamp(6rem, 14vw, 11rem);
+        aspect-ratio: 1;
+        transform: translateX(-50%);
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 35%, #f0d6cb, #a88b84 68%, #66504e);
+        box-shadow: 0 0 45px 12px rgb(193 116 109 / 12%), 0 0 120px rgb(150 26 42 / 13%);
+        opacity: .73;
+      }
+
+      .moon::after {
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        content: "";
+        background: radial-gradient(circle at 75% 42%, rgb(18 12 14 / 42%) 0 8%, transparent 9%),
+          radial-gradient(circle at 36% 68%, rgb(18 12 14 / 31%) 0 11%, transparent 12%),
+          radial-gradient(circle at 57% 21%, rgb(18 12 14 / 25%) 0 5%, transparent 6%);
+      }
+
+      .clock {
+        position: absolute;
+        top: 6%;
+        left: 50%;
+        width: 1px;
+        height: 21%;
+        background: linear-gradient(#302024, transparent);
+        opacity: .7;
+      }
+
+      .bats {
+        position: absolute;
+        top: 25%;
+        width: min(76vw, 54rem);
+        height: 14rem;
+        color: #21181b;
+        pointer-events: none;
+      }
+
+      .bat {
+        position: absolute;
+        width: 3.8rem;
+        fill: currentColor;
+        animation: drift 7s ease-in-out infinite alternate;
+      }
+
+      .bat:nth-child(1) { top: 1rem; left: 8%; width: 2.8rem; animation-delay: -2s; }
+      .bat:nth-child(2) { top: 4rem; right: 8%; animation-delay: -4s; }
+      .bat:nth-child(3) { top: 8rem; left: 28%; width: 2.2rem; animation-delay: -1s; }
+
+      .content {
+        position: relative;
+        z-index: 2;
+        width: min(100%, 65rem);
+        margin-top: 4rem;
+        text-align: center;
+      }
+
+      .eyebrow {
+        margin: 0 0 1.3rem;
+        color: #c1a8a1;
+        font-size: .78rem;
+        letter-spacing: .38em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0 auto;
+        color: var(--blood);
+        font-family: "Creepster", "Impact", fantasy;
+        font-size: clamp(3.7rem, 10vw, 8.4rem);
+        font-weight: 400;
+        line-height: .84;
+        letter-spacing: .025em;
+        text-shadow: 0 2px 0 #9a081c, 0 5px 18px rgb(235 19 47 / 34%), 0 0 58px rgb(235 19 47 / 24%);
+        animation: awaken 5s ease-in-out infinite;
+      }
+
+      h1 span { display: block; }
+      h1 span + span { margin-top: .13em; font-size: .79em; }
+      h1 span:last-child { font-size: .9em; }
+
+      .rule {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        width: min(19rem, 65%);
+        margin: 2rem auto 1.4rem;
+        color: #9e2533;
+        font-size: .85rem;
+      }
+
+      .rule::before, .rule::after {
+        height: 1px;
+        flex: 1;
+        content: "";
+        background: linear-gradient(90deg, transparent, #76202c);
+      }
+
+      .rule::after { transform: rotate(180deg); }
+
+      .tagline {
+        margin: 0 0 2rem;
+        color: var(--muted);
+        font-size: clamp(1rem, 2vw, 1.2rem);
+        font-style: italic;
+        letter-spacing: .04em;
+      }
+
+      .begin {
+        position: relative;
+        display: inline-block;
+        padding: .95rem 2.5rem;
+        border: 1px solid #f04a59;
+        color: #fff1ed;
+        background: linear-gradient(180deg, #a40c23, #710718);
+        box-shadow: 0 0 20px rgb(226 14 43 / 24%), inset 0 1px rgb(255 255 255 / 16%);
+        font-family: "IM Fell English", Georgia, serif;
+        font-size: .92rem;
+        letter-spacing: .25em;
+        text-decoration: none;
+        text-transform: uppercase;
+        transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+      }
+
+      .begin:hover {
+        transform: translateY(-3px);
+        background: linear-gradient(180deg, #d11531, #85091d);
+        box-shadow: 0 0 32px rgb(240 24 51 / 48%), inset 0 1px rgb(255 255 255 / 20%);
+      }
+
+      .begin:focus-visible, .back:focus-visible {
+        outline: 2px solid #ffe4dc;
+        outline-offset: 5px;
+      }
+
+      .horizon {
+        position: absolute;
+        z-index: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: clamp(10rem, 29vh, 18rem);
+        color: #100b0e;
+      }
+
+      .horizon path { fill: currentColor; }
+
+      .credit {
+        position: absolute;
+        z-index: 2;
+        right: 1rem;
+        bottom: 1rem;
+        left: 1rem;
+        color: #65575a;
+        font-size: .72rem;
+        letter-spacing: .17em;
+        text-align: center;
+        text-transform: uppercase;
+      }
+
+      @keyframes awaken {
+        0%, 94%, 96%, 100% { filter: brightness(1); }
+        95% { filter: brightness(.72); }
+      }
+
+      @keyframes drift {
+        to { transform: translate(12px, -8px) rotate(-5deg); }
+      }
+
+      @media (max-width: 520px) {
+        .scene { padding-bottom: 7rem; }
+        .content { margin-top: 5rem; }
+        .eyebrow { font-size: .65rem; letter-spacing: .25em; }
+        .tagline { max-width: 18rem; margin-right: auto; margin-left: auto; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+        .begin { transition: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="scene">
+      <div class="moon" aria-hidden="true"></div>
+      <div class="clock" aria-hidden="true"></div>
+      <svg class="bats" viewBox="0 0 600 200" aria-hidden="true">
+        <svg class="bat" viewBox="0 0 100 55"><path d="M50 25 39 12 37 25 18 13 22 32 4 26 17 43 37 40 50 52 63 40 83 43 96 26 78 32 82 13 63 25 61 12z"/></svg>
+        <svg class="bat" viewBox="0 0 100 55"><path d="M50 25 39 12 37 25 18 13 22 32 4 26 17 43 37 40 50 52 63 40 83 43 96 26 78 32 82 13 63 25 61 12z"/></svg>
+        <svg class="bat" viewBox="0 0 100 55"><path d="M50 25 39 12 37 25 18 13 22 32 4 26 17 43 37 40 50 52 63 40 83 43 96 26 78 32 82 13 63 25 61 12z"/></svg>
+      </svg>
+
+      <section class="content" aria-labelledby="title">
+        <p class="eyebrow">Gayme Night &nbsp;·&nbsp; Themed Edition</p>
+        <h1 id="title">
+          <span>Blood on the</span>
+          <span>Halloween</span>
+          <span>Clocktower</span>
+        </h1>
+        <div class="rule" aria-hidden="true">✦</div>
+        <p class="tagline">You have a VERY IMPORTANT ROLE</p>
+        <a class="begin" href="names.html">Begin Game</a>
+      </section>
+
+      <svg class="horizon" viewBox="0 0 1440 300" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+        <path d="M0 186 78 168 115 181 157 160 197 184 246 166 289 183 341 159 389 181 441 165 486 179 542 158 592 185 642 166 695 182 747 157 798 185 849 164 902 180 956 158 1008 184 1060 165 1110 182 1165 156 1210 181 1264 164 1311 185 1360 163 1440 183V300H0Z"/>
+        <path d="M25 206h18v-47h6v-19h5v19h6v47h18v-62h7v-20h4v20h7v62h18v-42h7v-28h5v28h7v42h18v-74h7v-15h5v15h7v74h18v-49h7v-25h5v25h7v49h18v-67h7v-21h5v21h7v67h18v-39h7v-31h5v31h7v39h18v-58h7v-18h5v18h7v58h18v-46h7v-25h5v25h7v46h18v-67h7v-20h5v20h7v67h18v-44h7v-28h5v28h7v44z"/>
+        <path d="M1080 260h20v-48h5v-22h6v22h5v48h20v-71h5v-25h6v25h5v71h20v-53h5v-18h6v18h5v53h20v-81h5v-23h6v23h5v81h20v-57h5v-19h6v19h5v57h20v-72h5v-24h6v24h5v72h20v-52h5v-18h6v18h5v52h20v-79h5v-21h6v21h5v79h20v-58h5v-19h6v19h5v58h20v-73h5v-23h6v23h5v73h20v-48h5v-21h6v21h5v48z"/>
+        <path d="M0 264h94v-37h9v-18h5v18h9v37h19v-54h10v-23h5v23h10v54h26v-34h9v-17h5v17h9v34h26v-62h10v-22h5v22h10v62h28v-42h9v-18h5v18h9v42h31v-57h10v-20h5v20h10v57h35v-34h9v-18h5v18h9v34h42v-52h10v-22h5v22h10v52h59v-34h9v-18h5v18h9v34h53v-47h10v-21h5v21h10v47h71v-33h9v-18h5v18h9v33h96v36H0z"/>
+      </svg>
+      <p class="credit">Try not to die... yet</p>
+    </main>
+    <script>
+      [
+        "bloodOnTheHalloweenClocktower.names",
+        "bloodOnTheHalloweenClocktower.choosers",
+        "bloodOnTheHalloweenClocktower.revealedVictims",
+      ].forEach((key) => localStorage.removeItem(key));
+    </script>
+  </body>
+</html>
